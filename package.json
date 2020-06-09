@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "aigle": "^1.14.1",
+    "selenium-webdriver": "^4.0.0-alpha.7"
+  }
+}
