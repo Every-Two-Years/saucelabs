@@ -98,11 +98,9 @@ for(let i = 0; i < Chrome.length; i++) {
   builds.push(["Firefox", "macOS 10.11", `${Firefox[i]}.0`]);
 }
 
-/*
 aigle
   .resolve(builds)
   .eachLimit(1, build => testDesktop(...build))
-  */
 
 const mobile = []
 mobile.push({
@@ -111,6 +109,62 @@ mobile.push({
   'browserName': 'Chrome',
   'platformVersion': '10.0',
   'platformName': 'Android'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'Google Pixel GoogleAPI Emulator',
+  'browserName': 'Chrome',
+  'platformVersion': '7.0',
+  'platformName': 'Android'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'Samsung Galaxy S6 GoogleAPI Emulator',
+  'browserName': 'Chrome',
+  'platformVersion': '7.1',
+  'platformName': 'Android'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'Google Pixel 3 GoogleAPI Emulator',
+  'browserName': 'Chrome',
+  'platformVersion': '10.0',
+  'platformName': 'Android'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'iPhone 5 Simulator',
+  'browserName': 'Safari',
+  'platformVersion': '10.3',
+  'platformName': 'iOS'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'iPhone 6s Plus Simulator',
+  'browserName': 'Safari',
+  'platformVersion': '11.2',
+  'platformName': 'iOS'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'iPhone 7 Simulator',
+  'browserName': 'Safari',
+  'platformVersion': '`12.0',
+  'platformName': 'iOS'
+});
+mobile.push({
+  'appiumVersion': '1.17.1',
+  'deviceName': 'iPhone SE Simulator',
+  'browserName': 'Safari',
+  'platformVersion': '1',
+  'platformName': 'iOS'
+});
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'iPad (5th generation) Simulator',
+  'browserName': 'Safari',
+  'platformVersion': '11.0',
+  'platformName': 'iOS'
 });
 mobile.forEach(v => v.build = BUILD);
 
