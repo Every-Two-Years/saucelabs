@@ -1,9 +1,7 @@
 const aigle = require("aigle");
 const util = require('util');
 const wait = util.promisify(setTimeout);
-const fs = require('fs');
-const writeFile = util.promisify(fs.writeFile);
-const webdriver = require('selenium-webdriver'),
+const { remote } = require('webdriverio');
 
 username = "retrohacker",
 accessKey = "c25b3bcf-4c93-4255-a6fd-1237bbd507da",
@@ -16,33 +14,67 @@ function str(string) {
   return string.replace(/\s|\./g, '-')
 }
 
-async function testDesktop(browser, platform, version) {
-  console.log(`Starting ${browser} ${platform} ${version}`);
-  const driver = new webdriver.Builder().withCapabilities({
-    'browserName': browser,
-    'platform': platform,
-    'version': version,
-    'build': BUILD,
-    'username': username,
-    'accessKey': accessKey,
-    'name': 'testdrive'
-  }).usingServer("https://" + username + ":" + accessKey +
-    "@ondemand.us-west-1.saucelabs.com:443/wd/hub").build();
+async function testDesktop(browserName, platform, version) {
+  console.log(`Starting ${browserName} ${platform} ${version}`);
+  const browser = await remote({
+    user: username,
+    key: accessKey,
+    capabilities: {
+      'browserName': browserName,
+      'platform': platform,
+      'version': version,
+      'build': BUILD,
+      'name': 'testdrive'
+    }
+  });
   try {
-    await driver.get(baseUrl);
+    await browser.url(baseUrl);
     await wait(1500);
-    const top = Buffer.from(await driver.takeScreenshot(), 'base64');
-    await writeFile(`./${str(platform)}_${str(browser)}_${str(version)}_top.png`, top);
-    await driver.executeScript("window.scrollTo(0, document.body.scrollHeight);")
-    const bottom = Buffer.from(await driver.takeScreenshot(), 'base64');
-    await writeFile(`./${str(platform)}_${str(browser)}_${str(version)}_bottom.png`, bottom);
+    await browser.saveScreenshot(`./${str(platform)}_${str(browserName)}_${str(version)}_top.png`)
+    await browser.execute("window.scrollTo(0, document.body.scrollHeight);")
+    await browser.saveScreenshot(`./${str(platform)}_${str(browserName)}_${str(version)}_bottom.png`)
   } catch (e) {
-    console.log(`Failed ${browser} ${platform} ${version}`);
+    console.log(`Failed ${browserName} ${platform} ${version}`);
     console.log(e);
   }
-  /* This tears down the current WebDriver session and ends the test method*/
-  driver.quit();
-  console.log(`Finished ${browser} ${platform} ${version}`);
+  await browser.deleteSession();
+  console.log(`Finished ${browserName} ${platform} ${version}`);
+}
+
+async function testPortrait(caps) {
+  const c = JSON.parse(JSON.stringify(caps));
+  c.deviceOrientation = 'portrait';
+  await mobileDriver(c)
+}
+async function testLandscape(caps) {
+  const c = JSON.parse(JSON.stringify(caps));
+  c.deviceOrientation = 'landscape';
+  await mobileDriver(c)
+}
+async function mobileDriver(caps) {
+  console.log(`Starting ${Object.values(caps).join(" ")}`);
+  const browser = await remote({
+    user: username,
+    key: accessKey,
+    capabilities: caps
+  });
+  try {
+    await browser.url(baseUrl);
+    await wait(1500);
+    await browser.saveScreenshot(`./${str(Object.values(caps).join("_"))}_top.png`)
+    await browser.execute("window.scrollTo(0, document.body.scrollHeight);")
+    await browser.saveScreenshot(`./${str(Object.values(caps).join("_"))}_bottom.png`)
+  } catch (e) {
+    console.log(`Failed ${Object.values(caps).join(" ")}`);
+    console.log(e);
+  }
+  await browser.deleteSession();
+  console.log(`Finished ${Object.values(caps).join(" ")}`);
+}
+
+async function testMobile(caps) {
+  await testLandscape(caps);
+  await testPortrait(caps);
 }
 
 let Edge = ["18", "17", "16"]
@@ -66,6 +98,22 @@ for(let i = 0; i < Chrome.length; i++) {
   builds.push(["Firefox", "macOS 10.11", `${Firefox[i]}.0`]);
 }
 
+/*
 aigle
   .resolve(builds)
   .eachLimit(1, build => testDesktop(...build))
+  */
+
+const mobile = []
+mobile.push({
+  'appiumVersion': '1.9.1',
+  'deviceName': 'Google Pixel 3 GoogleAPI Emulator',
+  'browserName': 'Chrome',
+  'platformVersion': '10.0',
+  'platformName': 'Android'
+});
+mobile.forEach(v => v.build = BUILD);
+
+aigle
+  .resolve(mobile)
+  .eachLimit(1, caps => testMobile(caps))
