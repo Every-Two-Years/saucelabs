@@ -149,14 +149,14 @@ mobile.push({
   'appiumVersion': '1.9.1',
   'deviceName': 'iPhone 7 Simulator',
   'browserName': 'Safari',
-  'platformVersion': '`12.0',
+  'platformVersion': '12.0',
   'platformName': 'iOS'
 });
 mobile.push({
   'appiumVersion': '1.17.1',
   'deviceName': 'iPhone SE Simulator',
   'browserName': 'Safari',
-  'platformVersion': '1',
+  'platformVersion': '13.0',
   'platformName': 'iOS'
 });
 mobile.push({
